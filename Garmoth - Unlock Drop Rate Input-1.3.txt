@@ -1,0 +1,104 @@
+// ==UserScript==
+// @name         Garmoth - Unlock Drop Rate Input
+// @namespace    https://garmoth.com/
+// @version      1.3
+// @description  Unlocks the subscriber-only Drop Rate input and sets default to 200%
+// @author       Brian Huang
+// @match        https://garmoth.com/*
+// @grant        none
+// @run-at       document-idle
+// ==/UserScript==
+
+(function () {
+  'use strict';
+
+  const DEFAULT_RATE = '370';   // ← default value
+  let unlocked = false;
+  let observer = null;
+
+  function unlockRateInput() {
+    if (unlocked) return;
+
+    const input = document.querySelector(
+      'div.fixed[class*="z-"] input[type="text"][disabled], ' +
+      'input[type="text"][label="Rate"][disabled], ' +
+      'input[type="text"][disabled]'
+    );
+
+    if (!input) return;
+
+    console.log('[Garmoth Unlock] Unlocking Rate input and setting to', DEFAULT_RATE);
+
+    // Unlock
+    input.disabled = false;
+    input.removeAttribute('disabled');
+
+    // Clean styles
+    input.classList.remove('!cursor-not-allowed', '!opacity-50');
+    input.style.cursor = 'text';
+    input.style.opacity = '1';
+    input.style.pointerEvents = 'auto';
+
+    const parent = input.closest('div[class*="relative"]');
+    if (parent) {
+      parent.classList.remove('!cursor-not-allowed', 'opacity-60', 'select-none');
+      parent.style.opacity = '1';
+      parent.style.cursor = 'auto';
+      parent.style.pointerEvents = 'auto';
+    }
+
+    // Set default value
+    input.value = DEFAULT_RATE;
+    input.dispatchEvent(new Event('input',  { bubbles: true }));
+    input.dispatchEvent(new Event('change', { bubbles: true }));
+
+    // Stop observer
+    if (observer) {
+      observer.disconnect();
+      observer = null;
+    }
+
+    unlocked = true;
+
+    // Focus so you can edit immediately if needed
+    setTimeout(() => {
+      input.focus();
+      input.select();
+    }, 50);
+
+    console.log('[Garmoth Unlock] Ready – default set to 370%');
+  }
+
+  // Lightweight observer
+  observer = new MutationObserver(() => {
+    if (!unlocked) unlockRateInput();
+  });
+
+  observer.observe(document.body, {
+    childList: true,
+    subtree: true
+  });
+
+  // Retry a few times on load
+  setTimeout(unlockRateInput, 800);
+  setTimeout(unlockRateInput, 2000);
+  setTimeout(unlockRateInput, 4000);
+
+  // Manual helper
+  window.setGarmothRate = function (val) {
+    const input = document.querySelector(
+      'div.fixed[class*="z-"] input[type="text"], input[type="text"][label="Rate"]'
+    );
+    if (input) {
+      input.disabled = false;
+      input.value = String(val);
+      input.dispatchEvent(new Event('input',  { bubbles: true }));
+      input.dispatchEvent(new Event('change', { bubbles: true }));
+      console.log('Rate set to', val);
+    } else {
+      console.warn('Open the Drop Rate popup first');
+    }
+  };
+
+  console.log('[Garmoth Unlock] Script loaded – default rate = 370%');
+})();
