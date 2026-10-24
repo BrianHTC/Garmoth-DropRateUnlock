@@ -12,8 +12,8 @@ I assume we all know that the loot drop data in Garmoth Global Grind-tracker is 
 This script simply does this for you and displays it in the UI. 
 Load the page, click the droprate icon, and type in a number. 
 
-##Caution
+## Caution
 This only works on the first time you open up the droprate icon. Refresh the page if you close the input tab.
 
-#Disclaimer
+# Disclaimer
 This does not unlock paid function for you. Use at your own risk. 
